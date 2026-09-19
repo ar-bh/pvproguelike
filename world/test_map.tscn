@@ -1,10 +1,34 @@
-[gd_scene load_steps=9 format=3 uid="uid://cbm3u28upcf5j"]
+[gd_scene format=3 uid="uid://cbm3u28upcf5j"]
 
-[ext_resource type="PackedScene" uid="uid://dohrq2saao8pp" path="res://player/player.tscn" id="1_bdltq"]
+[ext_resource type="PackedScene" uid="uid://dohrq2saao8pp" path="res://player/player.tscn" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://dy7javnarmjmu" path="res://assets/godot prototypes/checker_white_512x512.png" id="2_white"]
-[ext_resource type="Texture2D" uid="uid://b5xwrxoq28xhq" path="res://assets/godot prototypes/checker_blue_512x512.png" id="3_blue"]
+[ext_resource type="Texture2D" uid="uid://bjggv2e1yy8oi" path="res://assets/godot prototypes/checker_black_512x512.png" id="3_black"]
+[ext_resource type="Texture2D" uid="uid://b5xwrxoq28xhq" path="res://assets/godot prototypes/checker_blue_512x512.png" id="4_blue"]
+[ext_resource type="Texture2D" uid="uid://kjxeuepdshe8" path="res://assets/godot prototypes/checker_cyan_512x512.png" id="5_cyan"]
+[ext_resource type="Texture2D" uid="uid://cmmab6ae6q04a" path="res://assets/godot prototypes/checker_orange_512x512.png" id="6_orange"]
+[ext_resource type="Texture2D" uid="uid://b0l3qhh71rl4h" path="res://assets/godot prototypes/checker_red_512x512.png" id="7_red"]
+[ext_resource type="Texture2D" uid="uid://bqvvjmblr4awl" path="res://assets/godot prototypes/checker_lime_512x512.png" id="8_lime"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.32, 0.48, 0.68, 1)
+sky_horizon_color = Color(0.72, 0.76, 0.82, 1)
+ground_bottom_color = Color(0.18, 0.16, 0.14, 1)
+ground_horizon_color = Color(0.62, 0.64, 0.66, 1)
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_source = 2
+ambient_light_energy = 0.7
+tonemap_mode = 2
+fog_enabled = true
+fog_light_color = Color(0.7, 0.74, 0.8, 1)
+fog_density = 0.0025
+
+[sub_resource type="StandardMaterial3D" id="mat_floor"]
 albedo_texture = ExtResource("2_white")
 roughness = 0.9
 uv1_scale = Vector3(0.25, 0.25, 0.25)
@@ -12,48 +36,180 @@ uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_block"]
-albedo_texture = ExtResource("3_blue")
+[sub_resource type="StandardMaterial3D" id="mat_wall"]
+albedo_texture = ExtResource("3_black")
 roughness = 0.9
 uv1_scale = Vector3(0.25, 0.25, 0.25)
 uv1_triplanar = true
 uv1_world_triplanar = true
 texture_filter = 0
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7glny"]
-sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
-ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+[sub_resource type="StandardMaterial3D" id="mat_stairs"]
+albedo_texture = ExtResource("4_blue")
+roughness = 0.9
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 0
 
-[sub_resource type="Sky" id="Sky_iemch"]
-sky_material = SubResource("ProceduralSkyMaterial_7glny")
+[sub_resource type="StandardMaterial3D" id="mat_ramp"]
+albedo_texture = ExtResource("5_cyan")
+roughness = 0.9
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 0
 
-[sub_resource type="Environment" id="Environment_mn11d"]
-background_mode = 2
-sky = SubResource("Sky_iemch")
-tonemap_mode = 2
-ambient_light_source = 2
-ambient_light_energy = 0.6
+[sub_resource type="StandardMaterial3D" id="mat_jump"]
+albedo_texture = ExtResource("6_orange")
+roughness = 0.9
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 0
 
-[node name="TestMap" type="Node3D"]
+[sub_resource type="StandardMaterial3D" id="mat_high"]
+albedo_texture = ExtResource("8_lime")
+roughness = 0.9
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 0
 
-[node name="Floor" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-use_collision = true
-size = Vector3(24, 1, 24)
-material = SubResource("StandardMaterial3D_floor")
+[sub_resource type="StandardMaterial3D" id="mat_cover"]
+albedo_texture = ExtResource("7_red")
+roughness = 0.9
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 0
 
-[node name="Block" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -4)
-use_collision = true
-size = Vector3(2, 1, 2)
-material = SubResource("StandardMaterial3D_block")
+[node name="TestMap" type="Node3D" unique_id=378213778]
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_mn11d")
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=959989219]
+environment = SubResource("Environment_main")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.5, 0.8660254, -0.5, 0.75, -0.43301278, 0, 8, 0)
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=689640272]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.5, 0.8660254, -0.5, 0.75, -0.43301278, 0, 10, 0)
+light_energy = 1.15
 shadow_enabled = true
+shadow_bias = 0.04
 
-[node name="Player" parent="." instance=ExtResource("1_bdltq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)
+[node name="Level" type="CSGCombiner3D" parent="." unique_id=1390348201]
+use_collision = true
+
+[node name="Floor" type="CSGBox3D" parent="Level" unique_id=522778165]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+size = Vector3(36, 1, 36)
+material = SubResource("mat_floor")
+
+[node name="WallNorth" type="CSGBox3D" parent="Level" unique_id=364233678]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 18.25)
+size = Vector3(36.5, 4, 0.5)
+material = SubResource("mat_wall")
+
+[node name="WallSouth" type="CSGBox3D" parent="Level" unique_id=1229799386]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -18.25)
+size = Vector3(36.5, 4, 0.5)
+material = SubResource("mat_wall")
+
+[node name="WallEast" type="CSGBox3D" parent="Level" unique_id=558496802]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.25, 2, 0)
+size = Vector3(0.5, 4, 36)
+material = SubResource("mat_wall")
+
+[node name="WallWest" type="CSGBox3D" parent="Level" unique_id=1671151249]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.25, 2, 0)
+size = Vector3(0.5, 4, 36)
+material = SubResource("mat_wall")
+
+[node name="Step1" type="CSGBox3D" parent="Level" unique_id=53517825]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 8.2)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="Step2" type="CSGBox3D" parent="Level" unique_id=946734663]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 8.6)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="Step3" type="CSGBox3D" parent="Level" unique_id=991085796]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 9)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="Step4" type="CSGBox3D" parent="Level" unique_id=527311997]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 9.4)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="Step5" type="CSGBox3D" parent="Level" unique_id=1928156675]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 9.8)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="Step6" type="CSGBox3D" parent="Level" unique_id=1623072499]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 10.2)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="Step7" type="CSGBox3D" parent="Level" unique_id=1737002443]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.95, 10.6)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="Step8" type="CSGBox3D" parent="Level" unique_id=1478753450]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.25, 11)
+size = Vector3(4, 0.3, 0.4)
+material = SubResource("mat_stairs")
+
+[node name="StairLanding" type="CSGBox3D" parent="Level" unique_id=1647877126]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 14.2)
+size = Vector3(8, 0.4, 6)
+material = SubResource("mat_stairs")
+
+[node name="Ramp" type="CSGBox3D" parent="Level" unique_id=1732228876]
+transform = Transform3D(0.9284767, -0.37139067, 0, 0.37139067, 0.9284767, 0, 0, 0, 1, 9, 1.2, 8)
+size = Vector3(6.5, 0.3, 4)
+material = SubResource("mat_ramp")
+
+[node name="RampLanding" type="CSGBox3D" parent="Level" unique_id=495043686]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 2.2, 8)
+size = Vector3(6, 0.4, 6)
+material = SubResource("mat_ramp")
+
+[node name="JumpLow" type="CSGBox3D" parent="Level" unique_id=296745656]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 0.2, 2)
+size = Vector3(3, 0.4, 3)
+material = SubResource("mat_jump")
+
+[node name="JumpMid" type="CSGBox3D" parent="Level" unique_id=326589452]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 0.5, -1)
+size = Vector3(2.5, 0.4, 2.5)
+material = SubResource("mat_jump")
+
+[node name="JumpHigh" type="CSGBox3D" parent="Level" unique_id=1090059101]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1, 3)
+size = Vector3(2.5, 0.4, 2.5)
+material = SubResource("mat_high")
+
+[node name="CoverA" type="CSGBox3D" parent="Level" unique_id=229229175]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.5, -8)
+size = Vector3(4, 1, 0.5)
+material = SubResource("mat_cover")
+
+[node name="CoverB" type="CSGBox3D" parent="Level" unique_id=1917908808]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, -11)
+size = Vector3(0.5, 1, 4)
+material = SubResource("mat_cover")
+
+[node name="CoverC" type="CSGBox3D" parent="Level" unique_id=1311721762]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -14)
+size = Vector3(5, 1, 0.5)
+material = SubResource("mat_cover")
+
+[node name="Crate" type="CSGBox3D" parent="Level" unique_id=710394335]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, -8)
+material = SubResource("mat_cover")
+
+[node name="Player" parent="." unique_id=913114481 instance=ExtResource("1_player")]
