@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dohrq2saao8pp"]
+
+[ext_resource type="Script" uid="uid://q80utnhupqtr" path="res://player/player.gd" id="1_g1dw6"]
+[ext_resource type="PackedScene" uid="uid://bnwfi7x6jlqqa" path="res://player/mannequin/mannequin.scn" id="1_oul6g"]
+[ext_resource type="ArrayMesh" uid="uid://cqjg21w1tg3v0" path="res://player/mannequin/m_mannequin.mesh" id="2_rkbax"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mn11d"]
+radius = 0.29296875
+height = 1.8791504
+
+[node name="Player" type="CharacterBody3D" unique_id=1642979252]
+script = ExtResource("1_g1dw6")
+
+[node name="Mannequin" parent="." unique_id=1818869941 instance=ExtResource("1_oul6g")]
+gender = ExtResource("2_rkbax")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=970610640]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9066162, 0)
+shape = SubResource("CapsuleShape3D_mn11d")
