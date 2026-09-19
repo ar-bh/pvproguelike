@@ -1,0 +1,59 @@
+[gd_scene load_steps=9 format=3 uid="uid://cbm3u28upcf5j"]
+
+[ext_resource type="PackedScene" uid="uid://dohrq2saao8pp" path="res://player/player.tscn" id="1_bdltq"]
+[ext_resource type="Texture2D" uid="uid://dy7javnarmjmu" path="res://assets/godot prototypes/checker_white_512x512.png" id="2_white"]
+[ext_resource type="Texture2D" uid="uid://b5xwrxoq28xhq" path="res://assets/godot prototypes/checker_blue_512x512.png" id="3_blue"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_texture = ExtResource("2_white")
+roughness = 0.9
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_block"]
+albedo_texture = ExtResource("3_blue")
+roughness = 0.9
+uv1_scale = Vector3(0.25, 0.25, 0.25)
+uv1_triplanar = true
+uv1_world_triplanar = true
+texture_filter = 0
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_7glny"]
+sky_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+ground_horizon_color = Color(0.64625, 0.65575, 0.67075, 1)
+
+[sub_resource type="Sky" id="Sky_iemch"]
+sky_material = SubResource("ProceduralSkyMaterial_7glny")
+
+[sub_resource type="Environment" id="Environment_mn11d"]
+background_mode = 2
+sky = SubResource("Sky_iemch")
+tonemap_mode = 2
+ambient_light_source = 2
+ambient_light_energy = 0.6
+
+[node name="TestMap" type="Node3D"]
+
+[node name="Floor" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+use_collision = true
+size = Vector3(24, 1, 24)
+material = SubResource("StandardMaterial3D_floor")
+
+[node name="Block" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0.5, -4)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("StandardMaterial3D_block")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_mn11d")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.5, 0.8660254, -0.5, 0.75, -0.43301278, 0, 8, 0)
+shadow_enabled = true
+
+[node name="Player" parent="." instance=ExtResource("1_bdltq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2)

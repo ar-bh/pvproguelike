@@ -2,7 +2,6 @@
 
 [ext_resource type="Script" uid="uid://q80utnhupqtr" path="res://player/player.gd" id="1_g1dw6"]
 [ext_resource type="PackedScene" uid="uid://bnwfi7x6jlqqa" path="res://player/mannequin/mannequin.scn" id="1_oul6g"]
-[ext_resource type="ArrayMesh" uid="uid://cqjg21w1tg3v0" path="res://player/mannequin/m_mannequin.mesh" id="2_rkbax"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mn11d"]
 radius = 0.29296875
@@ -12,8 +11,14 @@ height = 1.8791504
 script = ExtResource("1_g1dw6")
 
 [node name="Mannequin" parent="." unique_id=1818869941 instance=ExtResource("1_oul6g")]
-gender = ExtResource("2_rkbax")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=970610640]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9066162, 0)
 shape = SubResource("CapsuleShape3D_mn11d")
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=1445643490]
+transform = Transform3D(1, 0, 0, 0, 0.98555386, -0.1693623, 0, 0.1693623, 0.98555386, 0, 1.6417537, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=1579285549]
+unique_name_in_owner = true
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, -1.43)
