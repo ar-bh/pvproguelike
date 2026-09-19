@@ -1,8 +1,7 @@
 [gd_scene format=3 uid="uid://cbm3u28upcf5j"]
 
-[ext_resource type="PackedScene" uid="uid://dohrq2saao8pp" path="res://player/player.tscn" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://dy7javnarmjmu" path="res://assets/godot prototypes/checker_white_512x512.png" id="2_white"]
-[ext_resource type="Texture2D" uid="uid://bjggv2e1yy8oi" path="res://assets/godot prototypes/checker_black_512x512.png" id="3_black"]
+[ext_resource type="Texture2D" uid="uid://bt1ogiy6bvl6c" path="res://assets/godot prototypes/checker_yellow_512x512.png" id="3_yellow"]
 [ext_resource type="Texture2D" uid="uid://b5xwrxoq28xhq" path="res://assets/godot prototypes/checker_blue_512x512.png" id="4_blue"]
 [ext_resource type="Texture2D" uid="uid://kjxeuepdshe8" path="res://assets/godot prototypes/checker_cyan_512x512.png" id="5_cyan"]
 [ext_resource type="Texture2D" uid="uid://cmmab6ae6q04a" path="res://assets/godot prototypes/checker_orange_512x512.png" id="6_orange"]
@@ -10,10 +9,11 @@
 [ext_resource type="Texture2D" uid="uid://bqvvjmblr4awl" path="res://assets/godot prototypes/checker_lime_512x512.png" id="8_lime"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
-sky_top_color = Color(0.32, 0.48, 0.68, 1)
-sky_horizon_color = Color(0.72, 0.76, 0.82, 1)
-ground_bottom_color = Color(0.18, 0.16, 0.14, 1)
-ground_horizon_color = Color(0.62, 0.64, 0.66, 1)
+sky_top_color = Color(0.45, 0.72, 0.98, 1)
+sky_horizon_color = Color(0.95, 0.96, 0.94, 1)
+ground_bottom_color = Color(0.72, 0.74, 0.68, 1)
+ground_horizon_color = Color(0.9, 0.91, 0.86, 1)
+energy_multiplier = 1.2
 
 [sub_resource type="Sky" id="Sky_main"]
 sky_material = SubResource("ProceduralSkyMaterial_sky")
@@ -22,11 +22,9 @@ sky_material = SubResource("ProceduralSkyMaterial_sky")
 background_mode = 2
 sky = SubResource("Sky_main")
 ambient_light_source = 2
-ambient_light_energy = 0.7
+ambient_light_energy = 1.25
 tonemap_mode = 2
-fog_enabled = true
-fog_light_color = Color(0.7, 0.74, 0.8, 1)
-fog_density = 0.0025
+tonemap_exposure = 1.2
 
 [sub_resource type="StandardMaterial3D" id="mat_floor"]
 albedo_texture = ExtResource("2_white")
@@ -37,8 +35,8 @@ uv1_world_triplanar = true
 texture_filter = 0
 
 [sub_resource type="StandardMaterial3D" id="mat_wall"]
-albedo_texture = ExtResource("3_black")
-roughness = 0.9
+albedo_texture = ExtResource("3_yellow")
+roughness = 0.8
 uv1_scale = Vector3(0.25, 0.25, 0.25)
 uv1_triplanar = true
 uv1_world_triplanar = true
@@ -91,9 +89,16 @@ environment = SubResource("Environment_main")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=689640272]
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.5, 0.8660254, -0.5, 0.75, -0.43301278, 0, 10, 0)
-light_energy = 1.15
+light_color = Color(1, 0.97, 0.9, 1)
+light_energy = 1.4
 shadow_enabled = true
 shadow_bias = 0.04
+shadow_opacity = 0.5
+
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.76604444, 0.55801374, -0.31948424, 0, 0.49613914, 0.86824314, 0.64278761, -0.66513145, 0.38006297, 0, 8, 0)
+light_color = Color(0.78, 0.88, 1, 1)
+light_energy = 0.45
 
 [node name="Level" type="CSGCombiner3D" parent="." unique_id=1390348201]
 use_collision = true
@@ -211,5 +216,3 @@ material = SubResource("mat_cover")
 [node name="Crate" type="CSGBox3D" parent="Level" unique_id=710394335]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.5, -8)
 material = SubResource("mat_cover")
-
-[node name="Player" parent="." unique_id=913114481 instance=ExtResource("1_player")]
