@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b0l3qhh71rl4h"
 path.s3tc="res://.godot/imported/checker_red_512x512.png-f10e3bd6cc10443cac0292004c905d91.s3tc.ctex"
+path.etc2="res://.godot/imported/checker_red_512x512.png-f10e3bd6cc10443cac0292004c905d91.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/godot prototypes/checker_red_512x512.png"
-dest_files=["res://.godot/imported/checker_red_512x512.png-f10e3bd6cc10443cac0292004c905d91.s3tc.ctex"]
+dest_files=["res://.godot/imported/checker_red_512x512.png-f10e3bd6cc10443cac0292004c905d91.s3tc.ctex", "res://.godot/imported/checker_red_512x512.png-f10e3bd6cc10443cac0292004c905d91.etc2.ctex"]
 
 [params]
 
