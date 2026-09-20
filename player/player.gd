@@ -19,20 +19,17 @@ var _camera_input_direction := Vector2.ZERO
 
 #region movement
 @export_group("Movement")
-@export var walk_speed := 6.0
-@export var sprint_speed := 10.0
+@export var move_speed := 10.0
 @export var jump_velocity := 4.5
 #endregion
 
 enum State {
 	IDLE,
 	WALK,
-	JUMP_START,
 	JUMP,
 	FALL,
 }
-var _state: State = State.IDLE
-var _is_sprinting: bool = false
+var state: State = State.IDLE
 
 #region node variables
 @onready var _mannequin: Mannequin = $Mannequin
@@ -81,16 +78,12 @@ func _physics_process(delta: float) -> void:
 	var direction := _get_move_direction()
 	_face_move_direction(direction, delta)
 
-	_is_sprinting = Input.is_action_pressed("sprint")
-
-	match _state:
+	match state:
 		State.IDLE:
 			velocity.x = 0.0
 			velocity.z = 0.0
-		State.WALK:
-			_move(direction, sprint_speed if _is_sprinting else walk_speed)
-		State.JUMP, State.FALL:
-			_move(direction, sprint_speed if _is_sprinting else walk_speed)
+		State.WALK, State.JUMP, State.FALL:
+			_move(direction, move_speed)
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
@@ -98,11 +91,11 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 	if not is_on_floor():
-		_state = State.JUMP if velocity.y > 0.0 else State.FALL
+		state = State.JUMP if velocity.y > 0.0 else State.FALL
 	elif direction == Vector3.ZERO:
-		_state = State.IDLE
+		state = State.IDLE
 	else:
-		_state = State.WALK
+		state = State.WALK
 
 func _move(direction: Vector3, move_speed: float) -> void:
 	velocity.x = direction.x * move_speed
