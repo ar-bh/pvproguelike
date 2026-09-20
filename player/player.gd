@@ -13,6 +13,7 @@ extends CharacterBody3D
 #region camera
 @export_group("Camera")
 @export_range(0.0, 1.0) var mouse_sensitivity := 0.25
+@export var turn_speed := 15.0
 
 var _camera_input_direction := Vector2.ZERO
 #endregion
@@ -21,15 +22,8 @@ var _camera_input_direction := Vector2.ZERO
 @export_group("Movement")
 @export var move_speed := 10.0
 @export var jump_velocity := 4.5
+@export var fall_gravity_multiplier := 2.5
 #endregion
-
-enum State {
-	IDLE,
-	WALK,
-	JUMP,
-	FALL,
-}
-var state: State = State.IDLE
 
 #region node variables
 @onready var _mannequin: Mannequin = $Mannequin
@@ -76,30 +70,15 @@ func _physics_process(delta: float) -> void:
 
 	_apply_gravity(delta)
 	var direction := _get_move_direction()
-	_face_move_direction(direction, delta)
+	_face_camera(delta)
 
-	match state:
-		State.IDLE:
-			velocity.x = 0.0
-			velocity.z = 0.0
-		State.WALK, State.JUMP, State.FALL:
-			_move(direction, move_speed)
+	velocity.x = direction.x * move_speed
+	velocity.z = direction.z * move_speed
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
 
 	move_and_slide()
-
-	if not is_on_floor():
-		state = State.JUMP if velocity.y > 0.0 else State.FALL
-	elif direction == Vector3.ZERO:
-		state = State.IDLE
-	else:
-		state = State.WALK
-
-func _move(direction: Vector3, move_speed: float) -> void:
-	velocity.x = direction.x * move_speed
-	velocity.z = direction.z * move_speed
 
 func _get_move_direction() -> Vector3:
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -110,11 +89,22 @@ func _get_move_direction() -> Vector3:
 	return Vector3.ZERO
 
 func _apply_gravity(delta: float) -> void:
-	if not is_on_floor():
-		velocity += get_gravity() * delta
-
-func _face_move_direction(direction: Vector3, delta: float) -> void:
-	if direction == Vector3.ZERO:
+	if is_on_floor():
 		return
-	var target_yaw := atan2(direction.x, direction.z)
-	_mannequin.rotation.y = lerp_angle(_mannequin.rotation.y, target_yaw, 12.0 * delta)
+	var gravity := get_gravity()
+	if velocity.y < 0.0:
+		gravity *= fall_gravity_multiplier
+	velocity += gravity * delta
+
+func _face_camera(delta: float) -> void:
+	var look := -_camera.global_basis.z
+	look.y = 0.0
+	if look.length_squared() < 0.0001:
+		return
+	look = look.normalized()
+	var target_yaw := atan2(look.x, look.z)
+	_mannequin.rotation.y = lerp_angle(
+		_mannequin.rotation.y,
+		target_yaw,
+		clampf(turn_speed * delta, 0.0, 1.0)
+	)
