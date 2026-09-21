@@ -8,3 +8,6 @@
 [node name="TestMap" parent="." unique_id=378213778 instance=ExtResource("1_0xm2m")]
 
 [node name="Player" parent="." unique_id=1642979252 instance=ExtResource("2_h2yge")]
+gender = 1
+sprint_speed = null
+crouch_speed = null

@@ -21,12 +21,17 @@ enum Gender { MALE, FEMALE }
 @export_range(0.0, 1.0) var mouse_sensitivity := 0.25
 @export var model_turn_speed := 15.0
 
+# rotloc hooray
+var rotation_lock := true
+
 var _camera_input_direction := Vector2.ZERO
 #endregion
 
 #region movement
 @export_group("Movement")
 @export var move_speed := 10.0
+@export var sprint_speed := 8.0
+@export var crouch_speed := 3.0
 @export var jump_velocity := 4.5
 @export var fall_gravity_multiplier := 2.5
 #endregion
@@ -80,8 +85,22 @@ func _physics_process(delta: float) -> void:
 	_face_camera(delta)
 
 	# move in direction
-	velocity.x = direction.x * move_speed
-	velocity.z = direction.z * move_speed
+	var crouching := Input.is_action_pressed("crouch")
+	var sprinting := (
+		Input.is_action_pressed("sprint")
+		and not crouching
+		and input != Vector2.ZERO
+	)
+	
+	var speed := move_speed
+	if crouching:
+		speed = crouch_speed
+	elif sprinting:
+		speed = sprint_speed
+	
+	
+	velocity.x = direction.x * speed
+	velocity.z = direction.z * speed
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
@@ -90,6 +109,13 @@ func _physics_process(delta: float) -> void:
 	
 	if not is_on_floor():
 		_mannequin.mannequin_jump()
+	elif crouching:
+		if input == Vector2.ZERO:
+			_mannequin.mannequin_crouch_idle()
+		else:
+			_mannequin.mannequin_crouch_fwd()
+	elif sprinting:
+		_mannequin.mannequin_sprint()
 	elif input == Vector2.ZERO:
 		_mannequin.mannequin_idle()
 	else:
