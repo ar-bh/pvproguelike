@@ -34,12 +34,12 @@ func _ready() -> void:
 		set_mannequin_gender(gender)
 
 
-func _play(anim_name: StringName, blend_time: float = 0.15, sync_phase: bool = true) -> void:
+func _play(anim_name: StringName, sync_phase: bool = true, speed: float = 1.0) -> void:
 	if _anim == null or _anim.current_animation == anim_name:
 		return
 	var t := _anim.current_animation_position
 	var old_len := _anim.current_animation_length
-	_anim.play(anim_name, blend_time)
+	_anim.play(anim_name, 0.15, speed)
 	if not sync_phase or old_len <= 0.001:
 		return
 	var new_len := _anim.current_animation_length
@@ -49,108 +49,126 @@ func _play(anim_name: StringName, blend_time: float = 0.15, sync_phase: bool = t
 
 
 func idle() -> void:
-	_play(&"Idle", 0.2, false)
+	_play(&"Idle", false)
 
 
 func crouch_idle() -> void:
-	_play(&"Crouch_Idle", 0.2, false)
+	_play(&"Crouch_Idle", false)
 
 
 func walk() -> void:
-	_play(&"Walk", 0.15)
+	_play(&"Walk")
 
 
 func walk_fwd() -> void:
-	_play(&"Walk_Fwd", 0.15)
+	_play(&"Walk_Fwd")
 
 
 func walk_fwd_l() -> void:
-	_play(&"Walk_Fwd_L", 0.15)
+	_play(&"Walk_Fwd_L")
 
 
 func walk_fwd_r() -> void:
-	_play(&"Walk_Fwd_R", 0.15)
+	_play(&"Walk_Fwd_R")
 
 
 func walk_l() -> void:
-	_play(&"Walk_L", 0.15)
+	_play(&"Walk_L")
 
 
 func walk_r() -> void:
-	_play(&"Walk_R", 0.15)
+	_play(&"Walk_R")
 
 
 func walk_bwd() -> void:
-	_play(&"Walk_Bwd", 0.15)
+	_play(&"Walk_Bwd")
 
 
 func walk_bwd_l() -> void:
-	_play(&"Walk_Bwd_L", 0.15)
+	_play(&"Walk_Bwd_L")
 
 
 func walk_bwd_r() -> void:
-	_play(&"Walk_Bwd_R", 0.15)
+	_play(&"Walk_Bwd_R")
 
 
 func jog_fwd() -> void:
-	_play(&"Jog_Fwd", 0.15)
+	_play(&"Jog_Fwd")
 
 
 func sprint() -> void:
-	_play(&"Sprint", 0.12)
+	_play(&"Sprint")
+
+
+func crouch_enter() -> void:
+	_play(&"Crouch_Enter", false, 4.0)
+
+
+func crouch_exit() -> void:
+	_play(&"Crouch_Exit", false, 4.0)
 
 
 func crouch_fwd() -> void:
-	_play(&"Crouch_Fwd", 0.3)
+	_play(&"Crouch_Fwd")
 
 
 func crouch_fwd_l() -> void:
-	_play(&"Crouch_Fwd_L", 0.3)
+	_play(&"Crouch_Fwd_L")
 
 
 func crouch_fwd_r() -> void:
-	_play(&"Crouch_Fwd_R", 0.3)
+	_play(&"Crouch_Fwd_R")
 
 
 func crouch_left() -> void:
-	_play(&"Crouch_Left", 0.3)
+	_play(&"Crouch_Left")
 
 
 func crouch_right() -> void:
-	_play(&"Crouch_Right", 0.3)
+	_play(&"Crouch_Right")
 
 
 func crouch_bwd() -> void:
-	_play(&"Crouch_Bwd", 0.3)
+	_play(&"Crouch_Bwd")
 
 
 func crouch_bwd_l() -> void:
-	_play(&"Crouch_Bwd_L", 0.3)
+	_play(&"Crouch_Bwd_L")
 
 
 func crouch_bwd_r() -> void:
-	_play(&"Crouch_Bwd_R", 0.3)
+	_play(&"Crouch_Bwd_R")
 
 
 func jump_start() -> void:
-	_play(&"Jump_Start", 0.0, false)
+	_play(&"Jump_Start", false)
 
 
 func jump() -> void:
-	_play(&"Jump", 0.05, false)
+	_play(&"Jump", false)
 
 
 func jump_land() -> void:
-	_play(&"Jump_Land", 0.08, false)
+	_play(&"Jump_Land", false)
 
 
 func slide_start() -> void:
-	_play(&"Slide_Start", 0.05, false)
+	_play(&"Slide_Start", false)
 
 
 func slide() -> void:
-	_play(&"Slide", 0.1, false)
+	_play(&"Slide", false)
 
 
 func slide_exit() -> void:
-	_play(&"Slide_Exit", 0.12, false)
+	_play(&"Slide_Exit", false)
+
+
+func is_transition() -> bool:
+	if _anim == null or not _anim.is_playing():
+		return false
+	match _anim.current_animation:
+		&"Crouch_Enter", &"Crouch_Exit":
+			return true
+		_:
+			return false

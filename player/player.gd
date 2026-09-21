@@ -20,7 +20,8 @@ enum Gender { MALE, FEMALE }
 @export_group("Camera")
 @export_range(1.0, 20.0) var camera_distance := 3.0
 @export_range(0.0, 1.0) var mouse_sensitivity := 0.25
-@export var model_turn_speed := 15.0
+@export var model_turn_speed := 100.0
+@export var model_sprint_turn_speed := 15.0
 
 
 # rotloc hooray
@@ -48,7 +49,6 @@ var _camera_input_direction := Vector2.ZERO
 func _ready() -> void:
 	_apply_gender()
 	_spring_arm.add_excluded_object(get_rid())
-	_spring_arm.spring_length = camera_distance
 	if not Engine.is_editor_hint():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
@@ -73,6 +73,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if is_camera_motion:
 		_camera_input_direction = event.screen_relative * mouse_sensitivity
 
+var _was_crouching := false
+
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
@@ -96,8 +98,11 @@ func _physics_process(delta: float) -> void:
 	var sprinting := (
 		Input.is_action_pressed("sprint")
 		and not crouching
+		#and is_on_floor()
 		and input != Vector2.ZERO
 	)
+	
+	
 	rotation_lock = not sprinting
 	
 	var speed := move_speed
@@ -117,6 +122,12 @@ func _physics_process(delta: float) -> void:
 	
 	if not is_on_floor():
 		_mannequin.jump()
+	elif crouching and not _was_crouching:
+		_mannequin.crouch_enter()
+	elif not crouching and _was_crouching:
+		_mannequin.crouch_exit()
+	elif _mannequin.is_transition():
+		pass
 	elif crouching:
 		if input == Vector2.ZERO:
 			_mannequin.crouch_idle()
@@ -128,6 +139,8 @@ func _physics_process(delta: float) -> void:
 		_mannequin.idle()
 	else:
 		_play_walk(input)
+
+	_was_crouching = crouching
 
 func _get_move_direction(input: Vector2) -> Vector3:
 
@@ -167,7 +180,7 @@ func _face_vector(delta: float, look: Vector3) -> void:
 	_mannequin.rotation.y = lerp_angle(
 		_mannequin.rotation.y,
 		target_yaw,
-		clampf(model_turn_speed * delta, 0.0, 1.0)
+		clampf(model_sprint_turn_speed * delta, 0.0, 1.0)
 	)
 
 func _play_walk(input: Vector2) -> void:
