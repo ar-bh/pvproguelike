@@ -75,7 +75,8 @@ func _physics_process(delta: float) -> void:
 	_camera_input_direction = Vector2.ZERO
 
 	_apply_gravity(delta)
-	var direction := _get_move_direction()
+	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+	var direction := _get_move_direction(input)
 	_face_camera(delta)
 
 	# move in direction
@@ -86,9 +87,16 @@ func _physics_process(delta: float) -> void:
 		velocity.y = jump_velocity
 
 	move_and_slide()
+	
+	if not is_on_floor():
+		_mannequin.mannequin_jump()
+	elif input == Vector2.ZERO:
+		_mannequin.mannequin_idle()
+	else:
+		_play_walk(input)
 
-func _get_move_direction() -> Vector3:
-	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
+func _get_move_direction(input: Vector2) -> Vector3:
+
 	var direction := (_camera.global_basis.x * input.x) + (_camera.global_basis.z * input.y)
 	direction.y = 0.0
 	if direction.length_squared() > 0.0001:
@@ -115,3 +123,24 @@ func _face_camera(delta: float) -> void:
 		target_yaw,
 		clampf(model_turn_speed * delta, 0.0, 1.0)
 	)
+
+func _play_walk(input: Vector2) -> void:
+	var stick := Vector2(input.x, -input.y)  # W = up
+	var octant := wrapi(int(round(atan2(stick.x, stick.y) / TAU * 8.0)), 0, 8)
+	match octant:
+		0:
+			_mannequin.mannequin_walk_fwd()
+		1:
+			_mannequin.mannequin_walk_fwd_r()
+		2:
+			_mannequin.mannequin_walk_r()
+		3:
+			_mannequin.mannequin_walk_bwd_r()
+		4:
+			_mannequin.mannequin_walk_bwd()
+		5:
+			_mannequin.mannequin_walk_bwd_l()
+		6:
+			_mannequin.mannequin_walk_l()
+		7:
+			_mannequin.mannequin_walk_fwd_l()
