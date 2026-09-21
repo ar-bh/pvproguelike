@@ -15,6 +15,8 @@ floor_snap_length = 0.2
 script = ExtResource("1_g1dw6")
 model_turn_speed = 100.0
 move_speed = 6.0
+sprint_speed = null
+crouch_speed = null
 
 [node name="Mannequin" parent="." unique_id=151898864 instance=ExtResource("1_oul6g")]
 
