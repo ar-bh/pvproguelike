@@ -18,8 +18,10 @@ enum Gender { MALE, FEMALE }
 
 #region camera
 @export_group("Camera")
+@export_range(1.0, 20.0) var camera_distance := 3.0
 @export_range(0.0, 1.0) var mouse_sensitivity := 0.25
 @export var model_turn_speed := 15.0
+
 
 # rotloc hooray
 var rotation_lock := true
@@ -46,6 +48,7 @@ var _camera_input_direction := Vector2.ZERO
 func _ready() -> void:
 	_apply_gender()
 	_spring_arm.add_excluded_object(get_rid())
+	_spring_arm.spring_length = camera_distance
 	if not Engine.is_editor_hint():
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 

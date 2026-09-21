@@ -6,8 +6,6 @@
 [node name="Main" type="Node3D" unique_id=765209142]
 
 [node name="Player" parent="." unique_id=1642979252 instance=ExtResource("2_h2yge")]
-gender = 1
-sprint_speed = 8.0
-crouch_speed = 3.0
+camera_distance = 3.0
 
 [node name="TestMap" parent="." unique_id=378213778 instance=ExtResource("1_0xm2m")]

@@ -8,6 +8,7 @@ var _anim: AnimationPlayer
 var gender: PackedScene:
 	set = set_mannequin_gender
 
+const ANIMS := preload("res://assets/mannequin/mannequin_anims.res")
 
 func set_mannequin_gender(new_gender: PackedScene) -> void:
 	gender = new_gender
@@ -20,6 +21,12 @@ func set_mannequin_gender(new_gender: PackedScene) -> void:
 	_visual = gender.instantiate()
 	add_child(_visual)
 	_anim = _visual.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if _anim == null:
+		_anim = AnimationPlayer.new()
+		_visual.add_child(_anim)
+	if _anim.has_animation_library(&""):
+		_anim.remove_animation_library(&"")
+	_anim.add_animation_library(&"", ANIMS)
 
 
 func _ready() -> void:
