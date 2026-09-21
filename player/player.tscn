@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dohrq2saao8pp"]
 
 [ext_resource type="Script" uid="uid://q80utnhupqtr" path="res://player/player.gd" id="1_g1dw6"]
-[ext_resource type="PackedScene" uid="uid://bnwfi7x6jlqqa" path="res://player/mannequin/mannequin.scn" id="1_oul6g"]
+[ext_resource type="PackedScene" uid="uid://bkutgfnkrr5ik" path="res://player/mannequin/mannequin.scn" id="1_oul6g"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mn11d"]
 radius = 0.29296875
@@ -13,11 +13,7 @@ radius = 0.15
 [node name="Player" type="CharacterBody3D" unique_id=1642979252]
 floor_snap_length = 0.2
 script = ExtResource("1_g1dw6")
-turn_speed = null
 move_speed = 6.0
-fall_gravity_multiplier = null
-
-[node name="Mannequin" parent="." unique_id=1818869941 instance=ExtResource("1_oul6g")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=970610640]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9066162, 0)
@@ -34,3 +30,5 @@ margin = 0.2
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1579285549]
 unique_name_in_owner = true
+
+[node name="Mannequin" parent="." unique_id=151898864 instance=ExtResource("1_oul6g")]

@@ -3,11 +3,17 @@ class_name Player
 extends CharacterBody3D
 
 #region gender
-@export var gender: Mesh = preload("res://player/mannequin/m_mannequin.mesh"):
+enum Gender { MALE, FEMALE }
+@export var gender: Gender = Gender.MALE:
 	set(new_gender):
 		gender = new_gender
 		if is_node_ready():
 			_apply_gender()
+
+@onready var genders: Array[Mesh] = [
+	preload("res://player/mannequin/m_mannequin.mesh"),
+	preload("res://player/mannequin/f_mannequin.mesh"),
+]
 #endregion
 
 #region camera
@@ -40,7 +46,7 @@ func _ready() -> void:
 
 func _apply_gender() -> void:
 	if _mannequin:
-		_mannequin.gender = gender
+		_mannequin.gender = genders[gender]
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -72,6 +78,7 @@ func _physics_process(delta: float) -> void:
 	var direction := _get_move_direction()
 	_face_camera(delta)
 
+	# move in direction
 	velocity.x = direction.x * move_speed
 	velocity.z = direction.z * move_speed
 

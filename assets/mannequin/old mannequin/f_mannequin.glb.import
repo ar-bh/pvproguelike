@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://m0amqq4g26ea"
-path="res://.godot/imported/m_mannequin_old.glb-e06312ab2489a14f7a35ca31bc3ee9a6.scn"
+uid="uid://42i7ktqws66g"
+path="res://.godot/imported/f_mannequin.glb-399531487da349e244a09c7ecb65702b.scn"
 
 [deps]
 
-source_file="res://assets/mannequin/m_mannequin_old.glb"
-dest_files=["res://.godot/imported/m_mannequin_old.glb-e06312ab2489a14f7a35ca31bc3ee9a6.scn"]
+source_file="res://assets/mannequin/old mannequin/f_mannequin.glb"
+dest_files=["res://.godot/imported/f_mannequin.glb-399531487da349e244a09c7ecb65702b.scn"]
 
 [params]
 
