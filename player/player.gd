@@ -19,7 +19,7 @@ enum Gender { MALE, FEMALE }
 #region camera
 @export_group("Camera")
 @export_range(0.0, 1.0) var mouse_sensitivity := 0.25
-@export var turn_speed := 15.0
+@export var model_turn_speed := 15.0
 
 var _camera_input_direction := Vector2.ZERO
 #endregion
@@ -113,5 +113,5 @@ func _face_camera(delta: float) -> void:
 	_mannequin.rotation.y = lerp_angle(
 		_mannequin.rotation.y,
 		target_yaw,
-		clampf(turn_speed * delta, 0.0, 1.0)
+		clampf(model_turn_speed * delta, 0.0, 1.0)
 	)
