@@ -14,7 +14,6 @@ radius = 0.15
 floor_snap_length = 0.2
 script = ExtResource("1_g1dw6")
 camera_distance = null
-model_turn_speed = 100.0
 move_speed = 6.0
 
 [node name="Mannequin" parent="." unique_id=151898864 instance=ExtResource("1_oul6g")]

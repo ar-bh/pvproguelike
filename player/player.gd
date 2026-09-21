@@ -85,7 +85,11 @@ func _physics_process(delta: float) -> void:
 	_apply_gravity(delta)
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var direction := _get_move_direction(input)
-	_face_camera(delta)
+	
+	if rotation_lock:
+		_face_camera(delta)
+	else:
+		_face_vector(delta, direction)
 
 	# move in direction
 	var crouching := Input.is_action_pressed("crouch")
@@ -94,6 +98,7 @@ func _physics_process(delta: float) -> void:
 		and not crouching
 		and input != Vector2.ZERO
 	)
+	rotation_lock = not sprinting
 	
 	var speed := move_speed
 	if crouching:
@@ -111,16 +116,16 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	
 	if not is_on_floor():
-		_mannequin.mannequin_jump()
+		_mannequin.jump()
 	elif crouching:
 		if input == Vector2.ZERO:
-			_mannequin.mannequin_crouch_idle()
+			_mannequin.crouch_idle()
 		else:
-			_mannequin.mannequin_crouch_fwd()
+			_play_crouch(input)
 	elif sprinting:
-		_mannequin.mannequin_sprint()
+		_mannequin.sprint()
 	elif input == Vector2.ZERO:
-		_mannequin.mannequin_idle()
+		_mannequin.idle()
 	else:
 		_play_walk(input)
 
@@ -153,23 +158,56 @@ func _face_camera(delta: float) -> void:
 		clampf(model_turn_speed * delta, 0.0, 1.0)
 	)
 
+func _face_vector(delta: float, look: Vector3) -> void:
+	look.y = 0.0
+	if look.length_squared() < 0.0001:
+		return
+	look = look.normalized()
+	var target_yaw := atan2(look.x, look.z)
+	_mannequin.rotation.y = lerp_angle(
+		_mannequin.rotation.y,
+		target_yaw,
+		clampf(model_turn_speed * delta, 0.0, 1.0)
+	)
+
 func _play_walk(input: Vector2) -> void:
 	var stick := Vector2(input.x, -input.y)  # W = up
 	var octant := wrapi(int(round(atan2(stick.x, stick.y) / TAU * 8.0)), 0, 8)
 	match octant:
 		0:
-			_mannequin.mannequin_walk_fwd()
+			_mannequin.walk_fwd()
 		1:
-			_mannequin.mannequin_walk_fwd_r()
+			_mannequin.walk_fwd_r()
 		2:
-			_mannequin.mannequin_walk_r()
+			_mannequin.walk_r()
 		3:
-			_mannequin.mannequin_walk_bwd_r()
+			_mannequin.walk_bwd_r()
 		4:
-			_mannequin.mannequin_walk_bwd()
+			_mannequin.walk_bwd()
 		5:
-			_mannequin.mannequin_walk_bwd_l()
+			_mannequin.walk_bwd_l()
 		6:
-			_mannequin.mannequin_walk_l()
+			_mannequin.walk_l()
 		7:
-			_mannequin.mannequin_walk_fwd_l()
+			_mannequin.walk_fwd_l()
+			
+func _play_crouch(input: Vector2) -> void:
+	var stick := Vector2(input.x, -input.y)
+	var octant := wrapi(int(round(atan2(stick.x, stick.y) / TAU * 8.0)), 0, 8)
+	match octant:
+		0:
+			_mannequin.crouch_fwd()
+		1:
+			_mannequin.crouch_fwd_r()
+		2:
+			_mannequin.crouch_right()
+		3:
+			_mannequin.crouch_bwd_r()
+		4:
+			_mannequin.crouch_bwd()
+		5:
+			_mannequin.crouch_bwd_l()
+		6:
+			_mannequin.crouch_left()
+		7:
+			_mannequin.crouch_fwd_l()
