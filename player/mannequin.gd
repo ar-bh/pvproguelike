@@ -34,18 +34,26 @@ func _ready() -> void:
 		set_mannequin_gender(gender)
 
 
-func _play(anim_name: StringName, blend_time: float = 0.15) -> void:
+func _play(anim_name: StringName, blend_time: float = 0.15, sync_phase: bool = true) -> void:
 	if _anim == null or _anim.current_animation == anim_name:
 		return
+	var t := _anim.current_animation_position
+	var old_len := _anim.current_animation_length
 	_anim.play(anim_name, blend_time)
+	if not sync_phase or old_len <= 0.001:
+		return
+	var new_len := _anim.current_animation_length
+	if new_len <= 0.001:
+		return
+	_anim.seek(fposmod(t / old_len * new_len, new_len), true)
 
 
 func idle() -> void:
-	_play(&"Idle", 0.2)
+	_play(&"Idle", 0.2, false)
 
 
 func crouch_idle() -> void:
-	_play(&"Crouch_Idle", 0.2)
+	_play(&"Crouch_Idle", 0.2, false)
 
 
 func walk() -> void:
@@ -125,24 +133,24 @@ func crouch_bwd_r() -> void:
 
 
 func jump_start() -> void:
-	_play(&"Jump_Start", 0.0)
+	_play(&"Jump_Start", 0.0, false)
 
 
 func jump() -> void:
-	_play(&"Jump", 0.05)
+	_play(&"Jump", 0.05, false)
 
 
 func jump_land() -> void:
-	_play(&"Jump_Land", 0.08)
+	_play(&"Jump_Land", 0.08, false)
 
 
 func slide_start() -> void:
-	_play(&"Slide_Start", 0.05)
+	_play(&"Slide_Start", 0.05, false)
 
 
 func slide() -> void:
-	_play(&"Slide", 0.1)
+	_play(&"Slide", 0.1, false)
 
 
 func slide_exit() -> void:
-	_play(&"Slide_Exit", 0.12)
+	_play(&"Slide_Exit", 0.12, false)
