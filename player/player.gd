@@ -10,9 +10,9 @@ enum Gender { MALE, FEMALE }
 		if is_node_ready():
 			_apply_gender()
 
-@onready var genders: Array[Mesh] = [
-	preload("res://player/mannequin/m_mannequin.mesh"),
-	preload("res://player/mannequin/f_mannequin.mesh"),
+@onready var genders: Array[PackedScene] = [
+	preload("res://assets/mannequin/m_mannequin.glb"),
+	preload("res://assets/mannequin/f_mannequin.glb"),
 ]
 #endregion
 
