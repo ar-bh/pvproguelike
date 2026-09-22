@@ -37,6 +37,9 @@ var _camera_input_direction := Vector2.ZERO
 @export var jump_velocity := 4.5
 @export var fall_gravity_multiplier := 2.5
 @export var max_step_up := 0.4
+@export var slide_speed := 12.0
+@export var slide_duration := 0.85
+@export var slide_speed_curve: Curve
 #endregion
 
 #region node variables
@@ -56,7 +59,6 @@ func _apply_gender() -> void:
 	if _mannequin:
 		_mannequin.gender = genders[gender]
 
-
 func _unhandled_input(event: InputEvent) -> void:
 	if Engine.is_editor_hint():
 		return
@@ -74,6 +76,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_camera_input_direction = event.screen_relative * mouse_sensitivity
 
 var _was_crouching := false
+
+var _sliding := false
+var _slide_time := 0.0
+var _slide_dir := Vector3.ZERO
 
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -97,30 +103,61 @@ func _physics_process(delta: float) -> void:
 	else:
 		_face_vector(delta, direction)
 
-	# move in direction
 	var crouching := Input.is_action_pressed("crouch")
 	var sprinting := (
 		Input.is_action_pressed("sprint")
 		and not crouching
-		#and is_on_floor()
 		and input != Vector2.ZERO
 	)
-	
-	
-	rotation_lock = not sprinting
-	
+
+	if (
+		not _sliding
+		and is_on_floor()
+		and Input.is_action_just_pressed("crouch")
+		and Input.is_action_pressed("sprint")
+		and direction.length_squared() > 0.01
+	):
+		_start_slide(direction)
+
+	if _sliding:
+		_slide_time += delta
+		if _slide_time >= slide_duration:
+			_stop_slide()
+
+	if _sliding:
+		rotation_lock = false
+		_face_vector(delta, _slide_dir)
+	elif rotation_lock:
+		_face_camera(delta)
+	else:
+		_face_vector(delta, direction)
+
+	rotation_lock = not sprinting and not _sliding
+
 	var speed := move_speed
-	if crouching:
-		speed = crouch_speed
-	elif sprinting:
-		speed = sprint_speed
-	
-	
-	velocity.x = direction.x * speed
-	velocity.z = direction.z * speed
+	if _sliding:
+		var t := clampf(_slide_time / slide_duration, 0.0, 1.0)
+		var falloff := 1.0
+		if slide_speed_curve:
+			falloff = slide_speed_curve.sample(t)
+		speed = slide_speed * falloff
+		velocity.x = _slide_dir.x * speed
+		velocity.z = _slide_dir.z * speed
+	elif is_on_floor():
+		if crouching:
+			speed = crouch_speed
+		elif sprinting:
+			speed = sprint_speed
+		velocity.x = direction.x * speed
+		velocity.z = direction.z * speed
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
-		velocity.y = jump_velocity
+		if _sliding and _slide_time < 0.075:
+			pass
+		else:
+			velocity.y = jump_velocity
+			if _sliding:
+				_stop_slide(false)
 
 	var wish_horiz := Vector3(velocity.x, 0.0, velocity.z)
 	var was_on_floor := is_on_floor()
@@ -128,8 +165,11 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	if was_on_floor and velocity.y <= 0.0:
 		_try_step_up(wish_horiz, pos_before, delta)
-	
-	if not is_on_floor():
+
+	if _sliding:
+		if not _mannequin.is_transition():
+			_mannequin.slide()
+	elif not is_on_floor():
 		_mannequin.jump()
 	elif crouching and not _was_crouching:
 		_mannequin.crouch_enter()
@@ -149,7 +189,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		_play_walk(input)
 
-	_was_crouching = crouching
+	if not _sliding:
+		_was_crouching = crouching
+		
 
 func _get_move_direction(input: Vector2) -> Vector3:
 	var direction := (_camera.global_basis.x * input.x) + (_camera.global_basis.z * input.y)
@@ -202,6 +244,21 @@ func _try_step_up(wish_horiz: Vector3, pos_before: Vector3, delta: float) -> voi
 	velocity.x = wish_horiz.x
 	velocity.z = wish_horiz.z
 	velocity.y = 0.0
+
+func _start_slide(direction: Vector3) -> void:
+	_sliding = true
+	_slide_time = 0.0
+	_slide_dir = direction.normalized()
+	_was_crouching = true
+	_mannequin.slide_start()
+
+func _stop_slide(play_exit: bool = true) -> void:
+	if not _sliding:
+		return
+	_sliding = false
+	if play_exit:
+		_mannequin.slide_exit()
+	_was_crouching = Input.is_action_pressed("crouch")
 
 func _apply_gravity(delta: float) -> void:
 	if is_on_floor():

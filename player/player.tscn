@@ -3,6 +3,10 @@
 [ext_resource type="Script" uid="uid://q80utnhupqtr" path="res://player/player.gd" id="1_g1dw6"]
 [ext_resource type="PackedScene" uid="uid://bkutgfnkrr5ik" path="res://player/mannequin/mannequin.scn" id="1_oul6g"]
 
+[sub_resource type="Curve" id="Curve_0xm2m"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.2590909, 1), 0.0, 0.0, 0, 0, Vector2(0.990909, 0.24719107), 0.0, 0.0, 0, 0]
+point_count = 3
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mn11d"]
 radius = 0.29296875
 height = 1.8791504
@@ -16,6 +20,9 @@ floor_snap_length = 0.35
 safe_margin = 0.08
 script = ExtResource("1_g1dw6")
 move_speed = 6.0
+slide_speed = null
+slide_duration = null
+slide_speed_curve = SubResource("Curve_0xm2m")
 
 [node name="Mannequin" parent="." unique_id=151898864 instance=ExtResource("1_oul6g")]
 
