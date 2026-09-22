@@ -20,11 +20,10 @@ enum Gender { MALE, FEMALE }
 @export_group("Camera")
 @export_range(1.0, 20.0) var camera_distance := 3.0
 @export_range(0.0, 1.0) var mouse_sensitivity := 0.25
+@export var gamepad_sensitivity := 2.5
 @export var model_turn_speed := 100.0
 @export var model_sprint_turn_speed := 15.0
 
-
-# rotloc hooray
 var rotation_lock := true
 
 var _camera_input_direction := Vector2.ZERO
@@ -37,6 +36,7 @@ var _camera_input_direction := Vector2.ZERO
 @export var crouch_speed := 3.0
 @export var jump_velocity := 4.5
 @export var fall_gravity_multiplier := 2.5
+@export var max_step_up := 0.4
 #endregion
 
 #region node variables
@@ -80,9 +80,13 @@ func _physics_process(delta: float) -> void:
 		return
 
 	_camera_pivot.rotation.x += _camera_input_direction.y * delta
-	_camera_pivot.rotation.x = clampf(_camera_pivot.rotation.x, -PI / 3.0, PI / 3.0)
 	_camera_pivot.rotation.y -= _camera_input_direction.x * delta
 	_camera_input_direction = Vector2.ZERO
+
+	var look := Input.get_vector("look_left", "look_right", "look_up", "look_down")
+	_camera_pivot.rotation.y -= look.x * gamepad_sensitivity * delta
+	_camera_pivot.rotation.x += look.y * gamepad_sensitivity * delta
+	_camera_pivot.rotation.x = clampf(_camera_pivot.rotation.x, -PI / 3.0, PI / 3.0)
 
 	_apply_gravity(delta)
 	var input := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
@@ -118,7 +122,12 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
 
+	var wish_horiz := Vector3(velocity.x, 0.0, velocity.z)
+	var was_on_floor := is_on_floor()
+	var pos_before := global_position
 	move_and_slide()
+	if was_on_floor and velocity.y <= 0.0:
+		_try_step_up(wish_horiz, pos_before, delta)
 	
 	if not is_on_floor():
 		_mannequin.jump()
@@ -143,12 +152,56 @@ func _physics_process(delta: float) -> void:
 	_was_crouching = crouching
 
 func _get_move_direction(input: Vector2) -> Vector3:
-
 	var direction := (_camera.global_basis.x * input.x) + (_camera.global_basis.z * input.y)
 	direction.y = 0.0
-	if direction.length_squared() > 0.0001:
-		return direction.normalized()
-	return Vector3.ZERO
+	if direction.length_squared() < 0.0001:
+		return Vector3.ZERO
+	return direction
+
+func _try_step_up(wish_horiz: Vector3, pos_before: Vector3, delta: float) -> void:
+	if wish_horiz.length_squared() < 0.01:
+		return
+	var hit_lip := false
+	for i in get_slide_collision_count():
+		if get_slide_collision(i).get_normal().y < 0.3:
+			hit_lip = true
+			break
+	if not hit_lip:
+		return
+
+	var dir := Vector3(wish_horiz.x, 0.0, wish_horiz.z).normalized()
+	var from := global_transform
+	var up := Vector3(0.0, max_step_up, 0.0)
+	if test_move(from, up):
+		return
+
+	# Only leftover motion for this frame so stairs aren't teleported.
+	var intended := wish_horiz.length() * delta
+	var used := Vector3(global_position.x - pos_before.x, 0.0, global_position.z - pos_before.z).length()
+	var leftover := maxf(intended - used, 0.04)
+	var forward := dir * leftover
+	var raised := from.translated(up)
+	var hit := KinematicCollision3D.new()
+	if test_move(raised, forward, hit):
+		forward = hit.get_travel()
+		if forward.length() < 0.02:
+			return
+
+	var stepped := raised.translated(forward)
+	var down := Vector3(0.0, -(max_step_up + 0.2), 0.0)
+	var floor_hit := KinematicCollision3D.new()
+	if not test_move(stepped, down, floor_hit):
+		return
+	if floor_hit.get_normal().y < 0.6:
+		return
+	var dest := stepped.translated(floor_hit.get_travel())
+	if dest.origin.y <= from.origin.y + 0.02:
+		return
+
+	global_transform = dest
+	velocity.x = wish_horiz.x
+	velocity.z = wish_horiz.z
+	velocity.y = 0.0
 
 func _apply_gravity(delta: float) -> void:
 	if is_on_floor():

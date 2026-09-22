@@ -11,24 +11,25 @@ height = 1.8791504
 radius = 0.15
 
 [node name="Player" type="CharacterBody3D" unique_id=1642979252]
-floor_snap_length = 0.2
+floor_block_on_wall = false
+floor_snap_length = 0.35
+safe_margin = 0.08
 script = ExtResource("1_g1dw6")
-camera_distance = null
 move_speed = 6.0
 
 [node name="Mannequin" parent="." unique_id=151898864 instance=ExtResource("1_oul6g")]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=970610640]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9066162, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9454179, 0)
 shape = SubResource("CapsuleShape3D_mn11d")
 
 [node name="CameraPivot" type="Node3D" parent="." unique_id=1720870908]
 transform = Transform3D(1, 0, 0, 0, 0.98555386, -0.1693623, 0, 0.1693623, 0.98555386, 0, 1.6417537, 0)
 
 [node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot" unique_id=1486257575]
-transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, -0.30199906, -0.00046753883, 8.0406666e-05)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
 shape = SubResource("SphereShape3D_spring")
-spring_length = 2.0
+spring_length = 3.0
 margin = 0.2
 
 [node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1579285549]
