@@ -39,6 +39,7 @@ var _camera_input_direction := Vector2.ZERO
 @export var max_step_up := 0.4
 @export var slide_speed := 12.0
 @export var slide_duration := 0.85
+@export var slide_jump_lock := 0.25
 @export var slide_speed_curve: Curve
 #endregion
 
@@ -80,6 +81,7 @@ var _was_crouching := false
 var _sliding := false
 var _slide_time := 0.0
 var _slide_dir := Vector3.ZERO
+var _slide_jump_queued := false
 
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -143,7 +145,7 @@ func _physics_process(delta: float) -> void:
 		speed = slide_speed * falloff
 		velocity.x = _slide_dir.x * speed
 		velocity.z = _slide_dir.z * speed
-	elif is_on_floor():
+	else:
 		if crouching:
 			speed = crouch_speed
 		elif sprinting:
@@ -152,12 +154,17 @@ func _physics_process(delta: float) -> void:
 		velocity.z = direction.z * speed
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
-		if _sliding and _slide_time < 0.075:
-			pass
+		if _sliding and _slide_time < slide_jump_lock:
+			_slide_jump_queued = true
 		else:
 			velocity.y = jump_velocity
+			_mannequin.jump_start()
+			_stop_slide(false)
 			if _sliding:
 				_stop_slide(false)
+	elif _slide_jump_queued and _sliding and is_on_floor() and _slide_time >= slide_jump_lock:
+		velocity.y = jump_velocity
+		_stop_slide(false)
 
 	var wish_horiz := Vector3(velocity.x, 0.0, velocity.z)
 	var was_on_floor := is_on_floor()
@@ -166,11 +173,17 @@ func _physics_process(delta: float) -> void:
 	if was_on_floor and velocity.y <= 0.0:
 		_try_step_up(wish_horiz, pos_before, delta)
 
+	var on_floor := is_on_floor()
+	var just_landed := not was_on_floor and on_floor
+
 	if _sliding:
-		if not _mannequin.is_transition():
+		if _slide_time >= slide_jump_lock and not _mannequin.is_transition():
 			_mannequin.slide()
-	elif not is_on_floor():
-		_mannequin.jump()
+	elif just_landed:
+		_mannequin.jump_land()
+	elif not on_floor:
+		if not _mannequin.is_transition():
+			_mannequin.jump()
 	elif crouching and not _was_crouching:
 		_mannequin.crouch_enter()
 	elif not crouching and _was_crouching:
@@ -256,6 +269,7 @@ func _stop_slide(play_exit: bool = true) -> void:
 	if not _sliding:
 		return
 	_sliding = false
+	_slide_jump_queued = false
 	if play_exit:
 		_mannequin.slide_exit()
 	_was_crouching = Input.is_action_pressed("crouch")

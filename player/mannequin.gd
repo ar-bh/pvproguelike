@@ -168,7 +168,7 @@ func is_transition() -> bool:
 	if _anim == null or not _anim.is_playing():
 		return false
 	match _anim.current_animation:
-		&"Crouch_Enter", &"Crouch_Exit", &"Slide_Start", &"Slide_Exit":
+		&"Crouch_Enter", &"Crouch_Exit", &"Slide_Start", &"Slide_Exit", &"Jump_Start":
 			return true
 		_:
 			return false
