@@ -19,6 +19,7 @@ floor_block_on_wall = false
 floor_snap_length = 0.35
 safe_margin = 0.08
 script = ExtResource("1_g1dw6")
+model_sprint_turn_speed = 5.0
 move_speed = 6.0
 slide_speed_curve = SubResource("Curve_0xm2m")
 

@@ -6,7 +6,7 @@
 [node name="Main" type="Node3D" unique_id=765209142]
 
 [node name="Player" parent="." unique_id=1642979252 instance=ExtResource("2_h2yge")]
-slide_speed = null
-slide_duration = null
+gender = 1
+max_step_up = 0.4
 
 [node name="TestMap" parent="." unique_id=378213778 instance=ExtResource("1_0xm2m")]

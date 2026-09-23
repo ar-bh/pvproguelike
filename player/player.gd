@@ -36,7 +36,6 @@ var _camera_input_direction := Vector2.ZERO
 @export var crouch_speed := 3.0
 @export var jump_velocity := 4.5
 @export var fall_gravity_multiplier := 2.5
-@export var max_step_up := 0.4
 @export var slide_speed := 12.0
 @export var slide_duration := 0.85
 @export var slide_jump_lock := 0.25
@@ -82,6 +81,7 @@ var _sliding := false
 var _slide_time := 0.0
 var _slide_dir := Vector3.ZERO
 var _slide_jump_queued := false
+var _bhop_time := 0.0
 
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -136,6 +136,11 @@ func _physics_process(delta: float) -> void:
 
 	rotation_lock = not sprinting and not _sliding
 
+	var jumping := is_on_floor() and (
+		Input.is_action_just_pressed("jump")
+		or (_slide_jump_queued and _sliding and _slide_time >= slide_jump_lock)
+	)
+
 	var speed := move_speed
 	if _sliding:
 		var t := clampf(_slide_time / slide_duration, 0.0, 1.0)
@@ -150,8 +155,20 @@ func _physics_process(delta: float) -> void:
 			speed = crouch_speed
 		elif sprinting:
 			speed = sprint_speed
-		velocity.x = direction.x * speed
-		velocity.z = direction.z * speed
+		if is_on_floor() and not jumping and _bhop_time <= 0.0:
+			velocity.x = direction.x * speed
+			velocity.z = direction.z * speed
+		elif direction.length_squared() < 0.0001:
+			velocity.x = 0.0
+			velocity.z = 0.0
+		else:
+			var keep := maxf(
+				Vector3(velocity.x, 0.0, velocity.z).length(),
+				direction.length() * speed
+			)
+			var dir := direction.normalized()
+			velocity.x = dir.x * keep
+			velocity.z = dir.z * keep
 
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		if _sliding and _slide_time < slide_jump_lock:
@@ -164,24 +181,27 @@ func _physics_process(delta: float) -> void:
 				_stop_slide(false)
 	elif _slide_jump_queued and _sliding and is_on_floor() and _slide_time >= slide_jump_lock:
 		velocity.y = jump_velocity
+		_mannequin.jump_start()
 		_stop_slide(false)
 
-	var wish_horiz := Vector3(velocity.x, 0.0, velocity.z)
 	var was_on_floor := is_on_floor()
-	var pos_before := global_position
 	move_and_slide()
-	if was_on_floor and velocity.y <= 0.0:
-		_try_step_up(wish_horiz, pos_before, delta)
 
 	var on_floor := is_on_floor()
 	var just_landed := not was_on_floor and on_floor
+	if just_landed:
+		_bhop_time = 0.08
+	elif on_floor:
+		_bhop_time = maxf(_bhop_time - delta, 0.0)
+	else:
+		_bhop_time = 0.0
 
 	if _sliding:
 		if _slide_time >= slide_jump_lock and not _mannequin.is_transition():
 			_mannequin.slide()
 	elif just_landed:
 		_mannequin.jump_land()
-	elif not on_floor:
+	elif not on_floor or velocity.y > 0.0:
 		if not _mannequin.is_transition():
 			_mannequin.jump()
 	elif crouching and not _was_crouching:
@@ -212,51 +232,6 @@ func _get_move_direction(input: Vector2) -> Vector3:
 	if direction.length_squared() < 0.0001:
 		return Vector3.ZERO
 	return direction
-
-func _try_step_up(wish_horiz: Vector3, pos_before: Vector3, delta: float) -> void:
-	if wish_horiz.length_squared() < 0.01:
-		return
-	var hit_lip := false
-	for i in get_slide_collision_count():
-		if get_slide_collision(i).get_normal().y < 0.3:
-			hit_lip = true
-			break
-	if not hit_lip:
-		return
-
-	var dir := Vector3(wish_horiz.x, 0.0, wish_horiz.z).normalized()
-	var from := global_transform
-	var up := Vector3(0.0, max_step_up, 0.0)
-	if test_move(from, up):
-		return
-
-	# Only leftover motion for this frame so stairs aren't teleported.
-	var intended := wish_horiz.length() * delta
-	var used := Vector3(global_position.x - pos_before.x, 0.0, global_position.z - pos_before.z).length()
-	var leftover := maxf(intended - used, 0.04)
-	var forward := dir * leftover
-	var raised := from.translated(up)
-	var hit := KinematicCollision3D.new()
-	if test_move(raised, forward, hit):
-		forward = hit.get_travel()
-		if forward.length() < 0.02:
-			return
-
-	var stepped := raised.translated(forward)
-	var down := Vector3(0.0, -(max_step_up + 0.2), 0.0)
-	var floor_hit := KinematicCollision3D.new()
-	if not test_move(stepped, down, floor_hit):
-		return
-	if floor_hit.get_normal().y < 0.6:
-		return
-	var dest := stepped.translated(floor_hit.get_travel())
-	if dest.origin.y <= from.origin.y + 0.02:
-		return
-
-	global_transform = dest
-	velocity.x = wish_horiz.x
-	velocity.z = wish_horiz.z
-	velocity.y = 0.0
 
 func _start_slide(direction: Vector3) -> void:
 	_sliding = true
