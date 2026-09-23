@@ -39,7 +39,16 @@ func _play(anim_name: StringName, sync_phase: bool = true, speed: float = 1.0) -
 		return
 	var t := _anim.current_animation_position
 	var old_len := _anim.current_animation_length
-	_anim.play(anim_name, 0.15, speed)
+	var blend := 0.15
+	match _anim.current_animation:
+		&"Jump", &"Jump_Start", &"Jump_Land":
+			match anim_name:
+				&"Jump", &"Jump_Start", &"Jump_Land":
+					pass
+				_:
+					blend = 0.25
+					sync_phase = false
+	_anim.play(anim_name, blend, speed)
 	if not sync_phase or old_len <= 0.001:
 		return
 	var new_len := _anim.current_animation_length
@@ -168,7 +177,7 @@ func is_transition() -> bool:
 	if _anim == null or not _anim.is_playing():
 		return false
 	match _anim.current_animation:
-		&"Crouch_Enter", &"Crouch_Exit", &"Slide_Start", &"Slide_Exit", &"Jump_Start":
+		&"Crouch_Enter", &"Crouch_Exit", &"Slide_Start", &"Slide_Exit":
 			return true
 		_:
 			return false

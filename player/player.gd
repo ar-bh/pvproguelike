@@ -31,7 +31,7 @@ var _camera_input_direction := Vector2.ZERO
 
 #region movement
 @export_group("Movement")
-@export var move_speed := 10.0
+@export var move_speed := 6.0
 @export var sprint_speed := 8.0
 @export var crouch_speed := 3.0
 @export var jump_velocity := 4.5
@@ -81,7 +81,7 @@ var _sliding := false
 var _slide_time := 0.0
 var _slide_dir := Vector3.ZERO
 var _slide_jump_queued := false
-var _bhop_time := 0.0
+var _jump_start_lock := 0.0
 
 func _physics_process(delta: float) -> void:
 	if Engine.is_editor_hint():
@@ -155,7 +155,7 @@ func _physics_process(delta: float) -> void:
 			speed = crouch_speed
 		elif sprinting:
 			speed = sprint_speed
-		if is_on_floor() and not jumping and _bhop_time <= 0.0:
+		if is_on_floor() and not jumping:
 			velocity.x = direction.x * speed
 			velocity.z = direction.z * speed
 		elif direction.length_squared() < 0.0001:
@@ -175,12 +175,13 @@ func _physics_process(delta: float) -> void:
 			_slide_jump_queued = true
 		else:
 			velocity.y = jump_velocity
+			_jump_start_lock = 0.12
 			_mannequin.jump_start()
-			_stop_slide(false)
 			if _sliding:
 				_stop_slide(false)
 	elif _slide_jump_queued and _sliding and is_on_floor() and _slide_time >= slide_jump_lock:
 		velocity.y = jump_velocity
+		_jump_start_lock = 0.12
 		_mannequin.jump_start()
 		_stop_slide(false)
 
@@ -189,21 +190,18 @@ func _physics_process(delta: float) -> void:
 
 	var on_floor := is_on_floor()
 	var just_landed := not was_on_floor and on_floor
-	if just_landed:
-		_bhop_time = 0.08
-	elif on_floor:
-		_bhop_time = maxf(_bhop_time - delta, 0.0)
-	else:
-		_bhop_time = 0.0
+
+	if _jump_start_lock > 0.0:
+		_jump_start_lock = maxf(_jump_start_lock - delta, 0.0)
 
 	if _sliding:
 		if _slide_time >= slide_jump_lock and not _mannequin.is_transition():
 			_mannequin.slide()
-	elif just_landed:
-		_mannequin.jump_land()
-	elif not on_floor or velocity.y > 0.0:
-		if not _mannequin.is_transition():
+	elif not on_floor:
+		if _jump_start_lock <= 0.0:
 			_mannequin.jump()
+	elif just_landed and input == Vector2.ZERO:
+		_mannequin.jump_land()
 	elif crouching and not _was_crouching:
 		_mannequin.crouch_enter()
 	elif not crouching and _was_crouching:
